@@ -4,23 +4,40 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
-
-import java.time.Instant;
-import java.util.Map;
+import org.nova.exception.Response.ErrorResponse;
 
 @Provider
 public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(Exception exception) {
+
+        if (exception instanceof ApiException apiException) {
+
+            Response.Status status = apiException.getStatus();
+
+            ErrorResponse error = ErrorResponse.of(
+                    status.getStatusCode(),
+                    status.getReasonPhrase(),
+                    apiException.getMessage()
+            );
+
+            return Response.status(status)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(error)
+                    .build();
+        }
+
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(Map.of(
-                        "timestamp", Instant.now().toString(),
-                        "status", 500,
-                        "error", "Internal Server Error",
-                        "message", "An unexpected error occurred"
-                ))
+                .entity(
+                        ErrorResponse.of(
+                                500,
+                                "Internal Server Error",
+                                "An unexpected error occurred"
+                        )
+                )
                 .build();
     }
+
 }

@@ -38,7 +38,9 @@ public class AuthResource {
         return Response.ok(Map.of(
                 "username", ctx.getUserPrincipal().getName(),
                 "subject", jwt.getSubject(),
-                "groups", jwt.getGroups()
+                "groups", jwt.getGroups(),
+                "name", jwt.getClaim("name"),
+                "email", jwt.getClaim("email")
         )).build();
     }
 

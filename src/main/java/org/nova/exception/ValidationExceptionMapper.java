@@ -6,30 +6,32 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
+import org.nova.exception.Response.ErrorResponse;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Provider
-public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViolationException> {
+public class ValidationExceptionMapper
+        implements ExceptionMapper<ConstraintViolationException> {
 
     @Override
     public Response toResponse(ConstraintViolationException exception) {
+
         List<String> errors = exception.getConstraintViolations()
                 .stream()
                 .map(ConstraintViolation::getMessage)
-                .collect(Collectors.toList());
+                .toList();
+
+        ErrorResponse response = ErrorResponse.validation(
+                400,
+                "Validation Failed",
+                errors
+        );
 
         return Response.status(Response.Status.BAD_REQUEST)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(Map.of(
-                        "timestamp", Instant.now().toString(),
-                        "status", 400,
-                        "error", "Validation Failed",
-                        "messages", errors
-                ))
+                .entity(response)
                 .build();
     }
+
 }

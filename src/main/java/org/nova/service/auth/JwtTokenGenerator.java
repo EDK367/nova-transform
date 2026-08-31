@@ -25,7 +25,9 @@ public class JwtTokenGenerator {
                 .subject(user.getId().toString())
                 .upn(user.getUsername())
                 .groups(Set.of(user.getRole().getName()))
-                .claim("firstName", user.getFirstName())
+                .claim("email", user.getEmail())
+                .claim("name", user.getFirstName())
+                .claim("lastName", user.getLastName())
                 .issuedAt(now)
                 .expiresAt(expiration)
                 .sign();

@@ -1,7 +1,11 @@
 package org.nova.exception;
 
-public class AuthenticationException extends RuntimeException {
+import jakarta.ws.rs.core.Response;
+
+public class AuthenticationException extends ApiException {
+
     public AuthenticationException(String message) {
-        super(message);
+        super(Response.Status.UNAUTHORIZED, message);
     }
+
 }
