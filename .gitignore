@@ -19,6 +19,7 @@ bin/
 *.iws
 
 # NetBeans
+# NetBeans
 nb-configuration.xml
 
 # Visual Studio Code
@@ -38,6 +39,7 @@ nb-configuration.xml
 
 # Local environment
 .env
+src/main/resources/privateKey.pem
 
 # Plugin directory
 /.quarkus/cli/plugins/
