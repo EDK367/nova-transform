@@ -1,0 +1,54 @@
+package org.nova.domain.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+
+import java.time.Instant;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "waitlists", schema = "public", indexes = {@Index(name = "uq_waitlist",
+        columnList = "id_class, id_member",
+        unique = true)})
+public class Waitlist {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_class", nullable = false)
+    private Class idClass;
+
+    @NotNull
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_member", nullable = false)
+    private Member idMember;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "registration_date", nullable = false)
+    private Instant registrationDate;
+
+    @NotNull
+    @ColumnDefault("false")
+    @Column(name = "notified", nullable = false)
+    private Boolean notified;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+
+}
