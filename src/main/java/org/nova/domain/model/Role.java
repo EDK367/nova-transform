@@ -1,9 +1,8 @@
 package org.nova.domain.model;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -11,12 +10,18 @@ import java.time.LocalDateTime;
 @Table(name = "roles")
 @Getter
 @Setter
-public class Role extends PanacheEntity {
+@AllArgsConstructor
+@NoArgsConstructor
+public class Role extends PanacheEntityBase {
 
-    @Column(name = "name", nullable = false, unique = true, length = 50)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name", nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column(length = 255)
+    @Column(name = "description")
     private String description;
 
     @Column(name = "created_at", updatable = false)

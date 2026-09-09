@@ -38,8 +38,11 @@ public class User extends PanacheEntityBase {
     @Column(nullable = false)
     private String password;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
+    @Column(name = "two_factor_auth", nullable = false)
+    private boolean twoFactorAuth = false;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -48,8 +51,12 @@ public class User extends PanacheEntityBase {
     private LocalDateTime updatedAt;
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
+    @JoinColumn(name = "id_role", nullable = false)
     private Role role;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_branch")
+    private Branch branch;
 
     @PrePersist
     protected void onCreate() {
