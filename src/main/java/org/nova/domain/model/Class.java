@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.ClassStatus;
 
 import java.time.Instant;
 
@@ -33,9 +36,11 @@ public class Class {
     @JoinColumn(name = "id_trainer", nullable = false)
     private Trainer idTrainer;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'SCHEDULED'")
-    @Column(name = "status", columnDefinition = "class_status_enum not null")
-    private Object status;
+    @Column(name = "status", nullable = false, columnDefinition = "class_status_enum")
+    private ClassStatus status;
 
     @NotNull
     @Column(name = "schedule", nullable = false)

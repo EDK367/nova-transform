@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.MembershipStatus;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,9 +32,11 @@ public class Membership {
     @JoinColumn(name = "id_plan", nullable = false)
     private MembershipPlan idPlan;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'ACTIVE'")
-    @Column(name = "status", columnDefinition = "membership_status_enum not null")
-    private Object status;
+    @Column(name = "status", nullable = false, columnDefinition = "membership_status_enum")
+    private MembershipStatus status;
 
     @NotNull
     @Column(name = "start_date", nullable = false)

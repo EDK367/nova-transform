@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.MembershipStatus;
 
 import java.time.Instant;
 
@@ -23,11 +26,15 @@ public class MembershipHistory {
     @JoinColumn(name = "id_membership", nullable = false)
     private Membership idMembership;
 
-    @Column(name = "previous_status", columnDefinition = "membership_status_enum not null")
-    private Object previousStatus;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "previous_status", nullable = false, columnDefinition = "membership_status_enum")
+    private MembershipStatus previousStatus;
 
-    @Column(name = "new_status", columnDefinition = "membership_status_enum not null")
-    private Object newStatus;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "new_status", nullable = false, columnDefinition = "membership_status_enum")
+    private MembershipStatus newStatus;
 
     @NotNull
     @ColumnDefault("now()")

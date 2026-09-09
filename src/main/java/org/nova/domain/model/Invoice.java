@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.InvoiceStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -35,9 +38,11 @@ public class Invoice {
     @JoinColumn(name = "id_receptionist", nullable = false)
     private Receptionist idReceptionist;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'PENDING'")
-    @Column(name = "status", columnDefinition = "invoice_status_enum not null")
-    private Object status;
+    @Column(name = "status", nullable = false, columnDefinition = "invoice_status_enum")
+    private InvoiceStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_promotion")

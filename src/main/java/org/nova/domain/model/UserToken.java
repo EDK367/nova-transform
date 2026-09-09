@@ -6,8 +6,11 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.TokenType;
 
 import java.time.Instant;
 
@@ -34,8 +37,10 @@ public class UserToken {
     @Column(name = "token", nullable = false)
     private String token;
 
-    @Column(name = "type", columnDefinition = "token_type_enum not null")
-    private Object type;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "type", nullable = false, columnDefinition = "token_type_enum")
+    private TokenType type;
 
     @NotNull
     @ColumnDefault("now()")

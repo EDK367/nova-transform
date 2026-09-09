@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.PromotionDiscountType;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,8 +34,10 @@ public class Promotion {
     @Column(name = "description", length = Integer.MAX_VALUE)
     private String description;
 
-    @Column(name = "discount_type", columnDefinition = "promotion_discount_type_enum not null")
-    private Object discountType;
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(name = "discount_type", nullable = false, columnDefinition = "promotion_discount_type_enum")
+    private PromotionDiscountType discountType;
 
     @NotNull
     @Column(name = "discount_value", nullable = false, precision = 10, scale = 2)

@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import org.nova.domain.enums.EnrollmentStatus;
 
 import java.time.Instant;
 
@@ -30,9 +33,11 @@ public class ClassEnrollment {
     @JoinColumn(name = "id_member", nullable = false)
     private Member idMember;
 
+    @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @ColumnDefault("'ENROLLED'")
-    @Column(name = "status", columnDefinition = "enrollment_status_enum not null")
-    private Object status;
+    @Column(name = "status", nullable = false, columnDefinition = "enrollment_status_enum")
+    private EnrollmentStatus status;
 
     @NotNull
     @ColumnDefault("now()")
