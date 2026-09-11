@@ -3,7 +3,7 @@ package org.nova.service.impl.auth;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
-import org.nova.domain.model.User;
+import org.nova.domain.model.user.User;
 import org.nova.exception.AuthenticationException;
 import org.nova.repository.UserRepository;
 import org.nova.service.auth.AuthService;

@@ -1,0 +1,46 @@
+package org.nova.domain.model.staff;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.nova.domain.model.user.User;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.UUID;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "receptionists", schema = "public")
+public class Receptionist {
+    @Id
+    @Column(name = "id_receptionist", nullable = false)
+    private UUID id;
+
+    @MapsId
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JoinColumn(name = "id_receptionist", nullable = false)
+    private User users;
+
+    @NotNull
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "created_at", nullable = false)
+    private Instant createdAt;
+
+    @NotNull
+    @ColumnDefault("now()")
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+
+}

@@ -1,9 +1,8 @@
 package org.nova.repository;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.nova.domain.model.User;
+import org.nova.domain.model.user.User;
 
 import java.util.Optional;
 import java.util.UUID;
