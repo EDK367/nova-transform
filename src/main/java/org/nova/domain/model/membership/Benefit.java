@@ -1,5 +1,6 @@
 package org.nova.domain.model.membership;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,7 +16,7 @@ import java.time.Instant;
 @Table(name = "benefits", schema = "public", indexes = {@Index(name = "uq_benefits_name",
         columnList = "name",
         unique = true)})
-public class Benefit {
+public class Benefit extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

@@ -1,5 +1,6 @@
 package org.nova.domain.model.payment;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -21,7 +22,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "invoices", schema = "public")
-public class Invoice {
+public class Invoice extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

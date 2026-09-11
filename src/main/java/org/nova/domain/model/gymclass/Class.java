@@ -1,5 +1,6 @@
 package org.nova.domain.model.gymclass;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.time.Instant;
 @Setter
 @Entity
 @Table(name = "classes", schema = "public")
-public class Class {
+public class Class extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

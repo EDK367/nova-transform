@@ -1,5 +1,6 @@
 package org.nova.domain.model.gymclass;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,7 +16,7 @@ import java.time.Instant;
 @Table(name = "class_types", schema = "public", indexes = {@Index(name = "uq_class_types_name",
         columnList = "name",
         unique = true)})
-public class ClassType {
+public class ClassType extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

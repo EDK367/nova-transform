@@ -1,5 +1,6 @@
 package org.nova.domain.model.trainer;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "trainers", schema = "public")
-public class Trainer {
+public class Trainer extends PanacheEntityBase {
     @Id
     @Column(name = "id_trainer", nullable = false)
     private UUID id;

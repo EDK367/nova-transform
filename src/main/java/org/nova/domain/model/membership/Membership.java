@@ -1,5 +1,6 @@
 package org.nova.domain.model.membership;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "memberships", schema = "public")
-public class Membership {
+public class Membership extends PanacheEntityBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
