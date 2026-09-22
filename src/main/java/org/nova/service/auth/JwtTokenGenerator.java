@@ -3,7 +3,7 @@ package org.nova.service.auth;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.nova.domain.model.User;
+import org.nova.domain.model.user.User;
 
 import java.time.Instant;
 import java.util.Set;
