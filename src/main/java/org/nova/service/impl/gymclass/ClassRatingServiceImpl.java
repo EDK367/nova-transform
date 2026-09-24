@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClassRatingServiceImpl implements ClassRatingService {
 
-    private final ClassRatingRepository classRatingRepository;
+    private final ClassRatingRepository repository;
 
     @Override
     public List<ClassRating> findAll() {
-        return classRatingRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<ClassRating> findById(Long id) {
-        return classRatingRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public ClassRating create(ClassRating classRating) {
-        classRatingRepository.persist(classRating);
+        repository.persist(classRating);
         return classRating;
     }
 
     @Override
     @Transactional
     public ClassRating update(Long id, ClassRating classRating) {
-        ClassRating existing = classRatingRepository.findById(id);
+        ClassRating existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -53,6 +53,6 @@ public class ClassRatingServiceImpl implements ClassRatingService {
     @Override
     @Transactional
     public void delete(Long id) {
-        classRatingRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

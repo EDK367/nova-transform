@@ -13,29 +13,29 @@ import java.util.Optional;
 @ApplicationScoped
 @RequiredArgsConstructor
 public class BranchServiceImpl implements BranchService {
-    private final BranchRepository branchRepository;
+    private final BranchRepository repository;
 
     @Override
     public List<Branch> findAll() {
-        return branchRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<Branch> findById(Long id) {
-        return branchRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public Branch create(Branch branch) {
-        branchRepository.persist(branch);
+        repository.persist(branch);
         return branch;
     }
 
     @Override
     @Transactional
     public Branch update(Long id, Branch branch) {
-        Branch existing = branchRepository.findById(id);
+        Branch existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -51,6 +51,6 @@ public class BranchServiceImpl implements BranchService {
     @Override
     @Transactional
     public void delete(Long id) {
-        branchRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

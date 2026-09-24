@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WaitlistServiceImpl implements WaitlistService {
 
-    private final WaitlistRepository waitlistRepository;
+    private final WaitlistRepository repository;
 
     @Override
     public List<Waitlist> findAll() {
-        return waitlistRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<Waitlist> findById(Long id) {
-        return waitlistRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public Waitlist create(Waitlist waitlist) {
-        waitlistRepository.persist(waitlist);
+        repository.persist(waitlist);
         return waitlist;
     }
 
     @Override
     @Transactional
     public Waitlist update(Long id, Waitlist waitlist) {
-        Waitlist existing = waitlistRepository.findById(id);
+        Waitlist existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -53,6 +53,6 @@ public class WaitlistServiceImpl implements WaitlistService {
     @Override
     @Transactional
     public void delete(Long id) {
-        waitlistRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

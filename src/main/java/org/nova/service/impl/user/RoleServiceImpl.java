@@ -33,24 +33,4 @@ public class RoleServiceImpl implements RoleService {
         return role;
     }
 
-    @Override
-    @Transactional
-    public Role update(Long id, Role role) {
-        Role existing = repository.findById(id);
-
-        if (existing == null) {
-            return null;
-        }
-
-        existing.setName(role.getName());
-        existing.setDescription(role.getDescription());
-
-        return existing;
-    }
-
-    @Override
-    @Transactional
-    public void delete(Long id) {
-        repository.deleteById(id);
-    }
 }

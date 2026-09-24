@@ -13,16 +13,16 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClassServiceImpl implements ClassService {
 
-    private final ClassRepository classRepository;
+    private final ClassRepository repository;
 
     @Override
     public List<org.nova.domain.model.gymclass.Class> findAll() {
-        return classRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<org.nova.domain.model.gymclass.Class> findById(Long id) {
-        return classRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ClassServiceImpl implements ClassService {
     public org.nova.domain.model.gymclass.Class create(
             org.nova.domain.model.gymclass.Class gymClass) {
 
-        classRepository.persist(gymClass);
+        repository.persist(gymClass);
         return gymClass;
     }
 
@@ -41,7 +41,7 @@ public class ClassServiceImpl implements ClassService {
             org.nova.domain.model.gymclass.Class gymClass) {
 
         org.nova.domain.model.gymclass.Class existing =
-                classRepository.findById(id);
+                repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -61,6 +61,6 @@ public class ClassServiceImpl implements ClassService {
     @Override
     @Transactional
     public void delete(Long id) {
-        classRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

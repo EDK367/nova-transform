@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AttendanceServiceImpl implements AttendanceService {
 
-    private final AttendanceRepository attendanceRepository;
+    private final AttendanceRepository repository;
 
     @Override
     public List<Attendance> findAll() {
-        return attendanceRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<Attendance> findById(Long id) {
-        return attendanceRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public Attendance create(Attendance attendance) {
-        attendanceRepository.persist(attendance);
+        repository.persist(attendance);
         return attendance;
     }
 
     @Override
     @Transactional
     public Attendance update(Long id, Attendance attendance) {
-        Attendance existing = attendanceRepository.findById(id);
+        Attendance existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -55,6 +55,6 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     @Transactional
     public void delete(Long id) {
-        attendanceRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

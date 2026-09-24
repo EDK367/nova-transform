@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClassTypeServiceImpl implements ClassTypeService {
 
-    private final ClassTypeRepository classTypeRepository;
+    private final ClassTypeRepository repository;
 
     @Override
     public List<ClassType> findAll() {
-        return classTypeRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<ClassType> findById(Long id) {
-        return classTypeRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public ClassType create(ClassType classType) {
-        classTypeRepository.persist(classType);
+        repository.persist(classType);
         return classType;
     }
 
     @Override
     @Transactional
     public ClassType update(Long id, ClassType classType) {
-        ClassType existing = classTypeRepository.findById(id);
+        ClassType existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -51,6 +51,6 @@ public class ClassTypeServiceImpl implements ClassTypeService {
     @Override
     @Transactional
     public void delete(Long id) {
-        classTypeRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

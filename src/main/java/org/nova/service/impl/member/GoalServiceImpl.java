@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class GoalServiceImpl implements GoalService {
 
-    private final GoalRepository goalRepository;
+    private final GoalRepository repository;
 
     @Override
     public List<Goal> findAll() {
-        return goalRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<Goal> findById(Long id) {
-        return goalRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public Goal create(Goal goal) {
-        goalRepository.persist(goal);
+        repository.persist(goal);
         return goal;
     }
 
     @Override
     @Transactional
     public Goal update(Long id, Goal goal) {
-        Goal existing = goalRepository.findById(id);
+        Goal existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -51,6 +51,6 @@ public class GoalServiceImpl implements GoalService {
     @Override
     @Transactional
     public void delete(Long id) {
-        goalRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

@@ -14,29 +14,29 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ClassEnrollmentServiceImpl implements ClassEnrollmentService {
 
-    private final ClassEnrollmentRepository classEnrollmentRepository;
+    private final ClassEnrollmentRepository repository;
 
     @Override
     public List<ClassEnrollment> findAll() {
-        return classEnrollmentRepository.listAll();
+        return repository.listAll();
     }
 
     @Override
     public Optional<ClassEnrollment> findById(Long id) {
-        return classEnrollmentRepository.findByIdOptional(id);
+        return repository.findByIdOptional(id);
     }
 
     @Override
     @Transactional
     public ClassEnrollment create(ClassEnrollment classEnrollment) {
-        classEnrollmentRepository.persist(classEnrollment);
+        repository.persist(classEnrollment);
         return classEnrollment;
     }
 
     @Override
     @Transactional
     public ClassEnrollment update(Long id, ClassEnrollment classEnrollment) {
-        ClassEnrollment existing = classEnrollmentRepository.findById(id);
+        ClassEnrollment existing = repository.findById(id);
 
         if (existing == null) {
             return null;
@@ -53,6 +53,6 @@ public class ClassEnrollmentServiceImpl implements ClassEnrollmentService {
     @Override
     @Transactional
     public void delete(Long id) {
-        classEnrollmentRepository.deleteById(id);
+        repository.deleteById(id);
     }
 }

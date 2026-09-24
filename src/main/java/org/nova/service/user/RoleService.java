@@ -12,8 +12,4 @@ public interface RoleService {
     Optional<Role> findById(Long id);
 
     Role create(Role role);
-
-    Role update(Long id, Role role);
-
-    void delete(Long id);
 }
