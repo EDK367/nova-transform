@@ -28,13 +28,14 @@ public class GlobalExceptionMapper implements ExceptionMapper<Exception> {
                     .build();
         }
 
+        exception.printStackTrace();
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
                 .entity(
                         ErrorResponse.of(
                                 500,
                                 "Internal Server Error",
-                                "An unexpected error occurred"
+                                exception.getMessage() != null ? exception.getMessage() : "An unexpected error occurred"
                         )
                 )
                 .build();
