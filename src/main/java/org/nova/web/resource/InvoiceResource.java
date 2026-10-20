@@ -17,6 +17,7 @@ import org.nova.exception.NotFoundException;
 import org.nova.repository.UserRepository;
 import org.nova.service.payment.InvoiceService;
 import org.nova.service.payment.PaymentReceiptService;
+import org.nova.service.report.PdfReportService;
 import org.nova.web.dto.request.payment.CreateInvoiceRequest;
 import org.nova.web.dto.response.payment.InvoiceResponse;
 import org.nova.web.dto.response.payment.PaymentReceiptResponse;
@@ -32,6 +33,7 @@ public class InvoiceResource {
 
     private final InvoiceService invoiceService;
     private final PaymentReceiptService paymentReceiptService;
+    private final PdfReportService pdfReportService;
     private final UserRepository userRepository;
 
     @GET
@@ -96,6 +98,20 @@ public class InvoiceResource {
     public Response cancel(@PathParam("id") Long id) {
         InvoiceResponse response = invoiceService.cancelInvoice(id);
         return Response.ok(ApiResponse.success(200, "Factura cancelada exitosamente", response)).build();
+    }
+
+    @GET
+    @Path("/{id}/pdf")
+    @Produces("application/pdf")
+    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "CLIENTE"})
+    public Response downloadPdf(@PathParam("id") Long id, @Context SecurityContext ctx) {
+        InvoiceResponse invoice = invoiceService.findResponseById(id);
+        validateOwnershipIfClient(ctx, invoice.memberId());
+        byte[] pdfBytes = pdfReportService.generateInvoicePdf(id);
+        return Response.ok(pdfBytes)
+                .header("Content-Disposition", "attachment; filename=\"factura_" + id + ".pdf\"")
+                .header("Content-Length", pdfBytes.length)
+                .build();
     }
 
     private User getAuthenticatedUser(SecurityContext ctx) {

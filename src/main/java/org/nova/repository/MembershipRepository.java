@@ -1,3 +1,4 @@
+
 package org.nova.repository;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
@@ -41,6 +42,22 @@ public class MembershipRepository implements PanacheRepositoryBase<Membership, L
             params.and("memberId", memberId);
         }
 
-        return find(query.toString(), sort, params);
+        Sort qualifiedSort = Sort.by("m.createdAt", Sort.Direction.Descending);
+
+        if (sort != null && !sort.getColumns().isEmpty()) {
+            qualifiedSort = Sort.empty();
+
+            for (Sort.Column column : sort.getColumns()) {
+                String name = column.getName();
+
+                if (!name.startsWith("m.")) {
+                    name = "m." + name;
+                }
+
+                qualifiedSort.and(name, column.getDirection());
+            }
+        }
+
+        return find(query.toString(), qualifiedSort, params);
     }
 }

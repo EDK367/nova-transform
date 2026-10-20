@@ -8,7 +8,12 @@ import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.nova.common.ApiResponse;
 import org.nova.common.PageResponse;
+import org.nova.domain.model.member.Member;
+import org.nova.domain.model.user.User;
+import org.nova.exception.NotFoundException;
 import org.nova.service.member.MemberService;
+import org.nova.service.notification.EmailService;
+import org.nova.service.report.PdfReportService;
 import org.nova.web.dto.request.member.CreateMemberRequest;
 import org.nova.web.dto.response.member.CreateMemberResponse;
 import org.nova.web.dto.response.member.MemberResponse;
@@ -25,6 +30,8 @@ public class MemberResource {
 
     private final MemberService memberService;
     private final MemberMapper memberMapper;
+    private final PdfReportService pdfReportService;
+    private final EmailService emailService;
 
     @GET
     @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
@@ -65,5 +72,30 @@ public class MemberResource {
     public Response delete(@PathParam("id") UUID id) {
         memberService.delete(id);
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}/carnet-pdf")
+    @Produces("application/pdf")
+    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    public Response getCarnetPdf(@PathParam("id") UUID id) {
+        byte[] pdfBytes = pdfReportService.generateMemberCarnetPdf(id);
+        return Response.ok(pdfBytes)
+                .header("Content-Disposition", "inline; filename=\"carnet_socio_" + id + ".pdf\"")
+                .header("Content-Length", pdfBytes.length)
+                .build();
+    }
+
+    @POST
+    @Path("/{id}/solicitar-carnet")
+    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "CLIENTE"})
+    public Response solicitarCarnet(@PathParam("id") UUID id) {
+        Member member = memberService.findById(id)
+                .orElseThrow(() -> new NotFoundException("Socio no encontrado con ID: " + id));
+        byte[] pdfBytes = pdfReportService.generateMemberCarnetPdf(id);
+        User user = member.getUsers();
+        String fullName = user.getFirstName() + " " + user.getLastName();
+        emailService.sendMemberCarnet(user.getEmail(), user.getUsername(), fullName, pdfBytes);
+        return Response.ok(ApiResponse.success(200, "Carnet enviado exitosamente al correo " + user.getEmail(), null)).build();
     }
 }
