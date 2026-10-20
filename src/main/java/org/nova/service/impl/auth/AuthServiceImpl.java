@@ -3,7 +3,7 @@ package org.nova.service.impl.auth;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
-import org.nova.domain.model.User;
+import org.nova.domain.model.user.User;
 import org.nova.exception.AuthenticationException;
 import org.nova.repository.UserRepository;
 import org.nova.service.auth.AuthService;
@@ -23,11 +23,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = repository.findByUsername(request.username())
+        String identifier = request.username() != null ? request.username().trim() : "";
+        User user = repository.findByUsernameOrEmail(identifier)
                 .orElseThrow(() -> new AuthenticationException("Credenciales Invalidas"));
 
         if (!user.isActive()) throw new AuthenticationException("Credenciales Invalidas");
-
 
         if (!BcryptUtil.matches(request.password(), user.getPassword())) {
             throw new AuthenticationException("Credenciales Invalidas");

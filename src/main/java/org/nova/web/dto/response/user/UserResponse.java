@@ -16,5 +16,6 @@ public class UserResponse {
     private String phone;
     private String username;
     private String roleName;
-
+    private Long branchId;
+    private boolean active;
 }

@@ -1,9 +1,8 @@
 package org.nova.repository;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import org.nova.domain.model.User;
+import org.nova.domain.model.user.User;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +16,14 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
 
     public Optional<User> findByEmail(String email) {
         return find("email", email).firstResultOptional();
+    }
+
+    public Optional<User> findByUsernameOrEmail(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+        String trimmed = identifier.trim();
+        return find("LOWER(username) = ?1 OR LOWER(email) = ?1", trimmed.toLowerCase()).firstResultOptional();
     }
 
     public boolean existsByUsername(String username) {

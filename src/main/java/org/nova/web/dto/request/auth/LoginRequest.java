@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record LoginRequest(
-        @NotBlank(message = "Usuario requerido")
-        @Size(min = 3, max = 50, message = "Solo se permite nombres con rango de 3 a 50 caracteres")
+        @NotBlank(message = "Usuario o correo requerido")
+        @Size(min = 3, max = 150, message = "El usuario o correo debe tener entre 3 y 150 caracteres")
         String username,
 
         @NotBlank(message = "Contraseña requerida")
