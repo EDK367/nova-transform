@@ -11,11 +11,13 @@ import org.nova.domain.enums.InvoiceStatus;
 import org.nova.domain.model.payment.Invoice;
 import org.nova.domain.model.payment.PaymentMethod;
 import org.nova.domain.model.payment.PaymentReceipt;
+import org.nova.domain.model.user.User;
 import org.nova.exception.BadRequestException;
 import org.nova.exception.NotFoundException;
 import org.nova.repository.InvoiceRepository;
 import org.nova.repository.PaymentMethodRepository;
 import org.nova.repository.PaymentReceiptRepository;
+import org.nova.service.notification.EmailService;
 import org.nova.service.payment.PaymentReceiptService;
 import org.nova.web.dto.request.payment.CreatePaymentReceiptRequest;
 import org.nova.web.dto.response.payment.PaymentReceiptResponse;
@@ -34,6 +36,7 @@ public class PaymentReceiptServiceImpl implements PaymentReceiptService {
     private final InvoiceRepository invoiceRepository;
     private final PaymentMethodRepository paymentMethodRepository;
     private final PaymentReceiptMapper mapper;
+    private final EmailService emailService;
 
     @Override
     public List<PaymentReceipt> findAll() {
@@ -118,6 +121,18 @@ public class PaymentReceiptServiceImpl implements PaymentReceiptService {
             invoice.setStatus(InvoiceStatus.PARTIALLY_PAID);
         }
         invoiceRepository.persist(invoice);
+
+        if (invoice.getIdMembership() != null && invoice.getIdMembership().getIdMember() != null && invoice.getIdMembership().getIdMember().getUsers() != null) {
+            User memberUser = invoice.getIdMembership().getIdMember().getUsers();
+            String planName = (invoice.getIdMembership().getIdPlan() != null) ? invoice.getIdMembership().getIdPlan().getName() : "Plan de Membresia";
+            emailService.sendInvoiceReceipt(
+                    memberUser.getEmail(),
+                    memberUser.getFirstName() + " " + memberUser.getLastName(),
+                    invoice.getId(),
+                    "Q" + request.amountPaid(),
+                    planName
+            );
+        }
 
         return mapper.toResponse(receipt);
     }

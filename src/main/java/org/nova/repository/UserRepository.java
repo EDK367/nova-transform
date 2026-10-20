@@ -18,6 +18,14 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return find("email", email).firstResultOptional();
     }
 
+    public Optional<User> findByUsernameOrEmail(String identifier) {
+        if (identifier == null || identifier.isBlank()) {
+            return Optional.empty();
+        }
+        String trimmed = identifier.trim();
+        return find("LOWER(username) = ?1 OR LOWER(email) = ?1", trimmed.toLowerCase()).firstResultOptional();
+    }
+
     public boolean existsByUsername(String username) {
         return count("username", username) > 0;
     }

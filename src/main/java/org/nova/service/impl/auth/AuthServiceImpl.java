@@ -23,11 +23,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = repository.findByUsername(request.username())
+        String identifier = request.username() != null ? request.username().trim() : "";
+        User user = repository.findByUsernameOrEmail(identifier)
                 .orElseThrow(() -> new AuthenticationException("Credenciales Invalidas"));
 
         if (!user.isActive()) throw new AuthenticationException("Credenciales Invalidas");
-
 
         if (!BcryptUtil.matches(request.password(), user.getPassword())) {
             throw new AuthenticationException("Credenciales Invalidas");
