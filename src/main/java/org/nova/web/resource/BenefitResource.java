@@ -24,7 +24,7 @@ public class BenefitResource {
     private final BenefitService benefitService;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE", "BENEFITS_READ", "BENEFITS_MANAGE"})
     public Response getAll() {
         List<BenefitResponse> benefits = benefitService.findAllResponses();
         return Response.ok(ApiResponse.success(200, "Beneficios obtenidos exitosamente", benefits)).build();
@@ -32,14 +32,14 @@ public class BenefitResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE", "BENEFITS_READ", "BENEFITS_MANAGE"})
     public Response getById(@PathParam("id") Long id) {
         BenefitResponse benefit = benefitService.findResponseById(id);
         return Response.ok(ApiResponse.success(200, "Beneficio obtenido exitosamente", benefit)).build();
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BENEFITS_MANAGE"})
     public Response create(@Valid CreateBenefitRequest request) {
         BenefitResponse response = benefitService.createBenefit(request);
         return Response.created(URI.create("/api/v1/benefits/" + response.id()))
@@ -49,7 +49,7 @@ public class BenefitResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BENEFITS_MANAGE"})
     public Response update(@PathParam("id") Long id, @Valid UpdateBenefitRequest request) {
         BenefitResponse response = benefitService.updateBenefit(id, request);
         return Response.ok(ApiResponse.success(200, "Beneficio actualizado exitosamente", response)).build();
@@ -57,7 +57,7 @@ public class BenefitResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BENEFITS_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         benefitService.deleteBenefit(id);
         return Response.noContent().build();

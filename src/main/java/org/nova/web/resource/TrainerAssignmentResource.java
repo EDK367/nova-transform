@@ -3,10 +3,15 @@ package org.nova.web.resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.nova.common.ApiResponse;
+import org.nova.domain.model.user.User;
+import org.nova.exception.NotFoundException;
+import org.nova.repository.UserRepository;
 import org.nova.service.trainer.TrainerAssignmentService;
 import org.nova.web.dto.request.trainer.CreateTrainerAssignmentRequest;
 import org.nova.web.dto.request.trainer.UpdateTrainerAssignmentRequest;
@@ -23,28 +28,38 @@ import java.util.UUID;
 public class TrainerAssignmentResource {
 
     private final TrainerAssignmentService trainerAssignmentService;
+    private final UserRepository userRepository;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getAll(
             @QueryParam("memberId") UUID memberId,
             @QueryParam("trainerId") UUID trainerId,
-            @QueryParam("activeOnly") Boolean activeOnly
+            @QueryParam("activeOnly") Boolean activeOnly,
+            @Context SecurityContext ctx
     ) {
-        List<TrainerAssignmentResponse> list = trainerAssignmentService.findAllResponses(memberId, trainerId, activeOnly);
+        UUID effectiveMemberId = memberId;
+        if (ctx.isUserInRole("CLIENTE") && !ctx.isUserInRole("SUPER_ADMIN") && !ctx.isUserInRole("ADMIN")
+                && !ctx.isUserInRole("ENTRENADOR") && !ctx.isUserInRole("RECEPCIONISTA")) {
+            String username = ctx.getUserPrincipal().getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("Usuario autenticado no encontrado: " + username));
+            effectiveMemberId = user.getId();
+        }
+        List<TrainerAssignmentResponse> list = trainerAssignmentService.findAllResponses(effectiveMemberId, trainerId, activeOnly);
         return Response.ok(ApiResponse.success(200, "Asignaciones de entrenador obtenidas exitosamente", list)).build();
     }
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getById(@PathParam("id") Long id) {
         TrainerAssignmentResponse response = trainerAssignmentService.findResponseById(id);
         return Response.ok(ApiResponse.success(200, "Asignacion de entrenador obtenida exitosamente", response)).build();
     }
 
     @POST
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "ASSIGNMENTS_MANAGE"})
     public Response create(@Valid CreateTrainerAssignmentRequest request) {
         TrainerAssignmentResponse response = trainerAssignmentService.createAssignment(request);
         return Response.created(URI.create("/api/v1/trainer-assignments/" + response.id()))
@@ -54,7 +69,7 @@ public class TrainerAssignmentResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "ASSIGNMENTS_MANAGE"})
     public Response update(@PathParam("id") Long id, @Valid UpdateTrainerAssignmentRequest request) {
         TrainerAssignmentResponse response = trainerAssignmentService.updateAssignment(id, request);
         return Response.ok(ApiResponse.success(200, "Asignacion de entrenador actualizada exitosamente", response)).build();
@@ -62,7 +77,7 @@ public class TrainerAssignmentResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ASSIGNMENTS_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         trainerAssignmentService.deleteAssignment(id);
         return Response.noContent().build();

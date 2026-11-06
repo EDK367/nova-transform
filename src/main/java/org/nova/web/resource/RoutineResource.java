@@ -3,10 +3,15 @@ package org.nova.web.resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.nova.common.ApiResponse;
+import org.nova.domain.model.user.User;
+import org.nova.exception.NotFoundException;
+import org.nova.repository.UserRepository;
 import org.nova.service.workout.RoutineService;
 import org.nova.web.dto.request.workout.CreateRoutineRequest;
 import org.nova.web.dto.request.workout.UpdateRoutineRequest;
@@ -23,14 +28,24 @@ import java.util.UUID;
 public class RoutineResource {
 
     private final RoutineService routineService;
+    private final UserRepository userRepository;
 
     @GET
     @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getAll(
             @QueryParam("assignmentId") Long assignmentId,
-            @QueryParam("memberId") UUID memberId
+            @QueryParam("memberId") UUID memberId,
+            @Context SecurityContext ctx
     ) {
-        List<RoutineResponse> routines = routineService.findAllResponses(assignmentId, memberId);
+        UUID effectiveMemberId = memberId;
+        if (ctx.isUserInRole("CLIENTE") && !ctx.isUserInRole("ADMIN")
+                && !ctx.isUserInRole("ENTRENADOR") && !ctx.isUserInRole("RECEPCIONISTA")) {
+            String username = ctx.getUserPrincipal().getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("Usuario autenticado no encontrado: " + username));
+            effectiveMemberId = user.getId();
+        }
+        List<RoutineResponse> routines = routineService.findAllResponses(assignmentId, effectiveMemberId);
         return Response.ok(ApiResponse.success(200, "Rutinas obtenidas exitosamente", routines)).build();
     }
 

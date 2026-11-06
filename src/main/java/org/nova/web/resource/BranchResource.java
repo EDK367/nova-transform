@@ -24,7 +24,7 @@ public class BranchResource {
     private final BranchService branchService;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE", "BRANCHES_READ", "BRANCHES_MANAGE"})
     public Response getAll(@QueryParam("activeOnly") Boolean activeOnly) {
         List<BranchResponse> branches = branchService.findAllResponses(activeOnly);
         return Response.ok(ApiResponse.success(200, "Sucursales obtenidas exitosamente", branches)).build();
@@ -32,14 +32,14 @@ public class BranchResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE", "BRANCHES_READ", "BRANCHES_MANAGE"})
     public Response getById(@PathParam("id") Long id) {
         BranchResponse branch = branchService.findResponseById(id);
         return Response.ok(ApiResponse.success(200, "Sucursal obtenida exitosamente", branch)).build();
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BRANCHES_MANAGE"})
     public Response create(@Valid CreateBranchRequest request) {
         BranchResponse response = branchService.createBranch(request);
         return Response.created(URI.create("/api/v1/branches/" + response.id()))
@@ -49,7 +49,7 @@ public class BranchResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BRANCHES_MANAGE"})
     public Response update(@PathParam("id") Long id, @Valid UpdateBranchRequest request) {
         BranchResponse response = branchService.updateBranch(id, request);
         return Response.ok(ApiResponse.success(200, "Sucursal actualizada exitosamente", response)).build();
@@ -57,7 +57,7 @@ public class BranchResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "BRANCHES_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         branchService.deleteBranch(id);
         return Response.noContent().build();

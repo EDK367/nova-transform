@@ -24,7 +24,7 @@ public class TrainerSpecializationResource {
     private final TrainerSpecializationService trainerSpecializationService;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getAll(@QueryParam("trainerId") UUID trainerId) {
         List<TrainerSpecializationResponse> list = trainerSpecializationService.findAllResponses(trainerId);
         return Response.ok(ApiResponse.success(200, "Especializaciones de entrenador obtenidas exitosamente", list)).build();
@@ -32,14 +32,14 @@ public class TrainerSpecializationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getById(@PathParam("id") Long id) {
         TrainerSpecializationResponse response = trainerSpecializationService.findResponseById(id);
         return Response.ok(ApiResponse.success(200, "Especializacion de entrenador obtenida exitosamente", response)).build();
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "SPECIALIZATIONS_MANAGE"})
     public Response create(@Valid AssignTrainerSpecializationRequest request) {
         TrainerSpecializationResponse response = trainerSpecializationService.assignSpecialization(request);
         return Response.created(URI.create("/api/v1/trainer-specializations/" + response.id()))
@@ -49,7 +49,7 @@ public class TrainerSpecializationResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "SPECIALIZATIONS_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         trainerSpecializationService.deleteTrainerSpecialization(id);
         return Response.noContent().build();

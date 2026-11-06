@@ -20,7 +20,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
-@RolesAllowed("ADMIN")
+@RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPTIONISTS_MANAGE"})
 public class ReceptionistResource {
 
     private final ReceptionistService receptionistService;

@@ -51,7 +51,7 @@ public class MembershipPlanResource {
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "PLANS_MANAGE"})
     public Response create(@Valid CreateMembershipPlanRequest request) {
         MembershipPlanResponse response = planService.createPlan(request);
         return Response.created(URI.create("/api/v1/membership-plans/" + response.id()))
@@ -61,7 +61,7 @@ public class MembershipPlanResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "PLANS_MANAGE"})
     public Response update(@PathParam("id") Long id, @Valid UpdateMembershipPlanRequest request) {
         MembershipPlanResponse response = planService.updatePlan(id, request);
         return Response.ok(ApiResponse.success(200, "Plan de membresía actualizado exitosamente", response)).build();
@@ -69,7 +69,7 @@ public class MembershipPlanResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "PLANS_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         planService.deletePlan(id);
         return Response.noContent().build();
@@ -77,7 +77,7 @@ public class MembershipPlanResource {
 
     @POST
     @Path("/{id}/benefits/{benefitId}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "PLANS_MANAGE"})
     public Response addBenefit(@PathParam("id") Long id, @PathParam("benefitId") Long benefitId) {
         planService.addBenefitToPlan(id, benefitId);
         return Response.ok(ApiResponse.success(200, "Beneficio agregado al plan exitosamente", null)).build();
@@ -85,7 +85,7 @@ public class MembershipPlanResource {
 
     @DELETE
     @Path("/{id}/benefits/{benefitId}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "PLANS_MANAGE"})
     public Response removeBenefit(@PathParam("id") Long id, @PathParam("benefitId") Long benefitId) {
         planService.removeBenefitFromPlan(id, benefitId);
         return Response.noContent().build();

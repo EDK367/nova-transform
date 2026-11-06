@@ -3,10 +3,15 @@ package org.nova.web.resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.nova.common.ApiResponse;
+import org.nova.domain.model.user.User;
+import org.nova.exception.NotFoundException;
+import org.nova.repository.UserRepository;
 import org.nova.service.member.MemberGoalService;
 import org.nova.web.dto.request.member.AssignMemberGoalRequest;
 import org.nova.web.dto.response.member.MemberGoalResponse;
@@ -22,11 +27,20 @@ import java.util.UUID;
 public class MemberGoalResource {
 
     private final MemberGoalService memberGoalService;
+    private final UserRepository userRepository;
 
     @GET
     @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
-    public Response getAll(@QueryParam("memberId") UUID memberId) {
-        List<MemberGoalResponse> list = memberGoalService.findAllResponses(memberId);
+    public Response getAll(@QueryParam("memberId") UUID memberId, @Context SecurityContext ctx) {
+        UUID effectiveMemberId = memberId;
+        if (ctx.isUserInRole("CLIENTE") && !ctx.isUserInRole("ADMIN")
+                && !ctx.isUserInRole("ENTRENADOR") && !ctx.isUserInRole("RECEPCIONISTA")) {
+            String username = ctx.getUserPrincipal().getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new NotFoundException("Usuario autenticado no encontrado: " + username));
+            effectiveMemberId = user.getId();
+        }
+        List<MemberGoalResponse> list = memberGoalService.findAllResponses(effectiveMemberId);
         return Response.ok(ApiResponse.success(200, "Objetivos de socio obtenidos exitosamente", list)).build();
     }
 

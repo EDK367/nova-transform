@@ -34,7 +34,7 @@ public class MemberResource {
     private final EmailService emailService;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "MEMBERS_READ"})
     public Response getAll(
             @QueryParam("page") @DefaultValue("0") int page,
             @QueryParam("size") @DefaultValue("10") int size,
@@ -44,31 +44,31 @@ public class MemberResource {
     ) {
         String effectiveDirection = (order != null && !order.isBlank()) ? order : sortDirection;
         PageResponse<MemberResponse> pagedMembers = memberService.findPaged(page, size, sortBy, effectiveDirection);
-        return Response.ok(ApiResponse.success(200, "Socios obtenidos exitosamente", pagedMembers)).build();
+        return Response.ok(ApiResponse.success(200, "Clientes obtenidos exitosamente", pagedMembers)).build();
     }
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "MEMBERS_READ"})
     public Response getById(@PathParam("id") UUID id) {
         return memberService.findById(id)
                 .map(memberMapper::toResponse)
-                .map(member -> Response.ok(ApiResponse.success(200, "Socio obtenido exitosamente", member)).build())
+                .map(member -> Response.ok(ApiResponse.success(200, "Cliente obtenido exitosamente", member)).build())
                 .orElseGet(() -> Response.status(Response.Status.NOT_FOUND).build());
     }
 
     @POST
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "MEMBERS_CREATE"})
     public Response create(@Valid CreateMemberRequest request) {
         CreateMemberResponse response = memberService.createMember(request);
         return Response.created(URI.create("/api/v1/members/" + response.id()))
-                .entity(ApiResponse.success(201, "Socio creado exitosamente", response))
+                .entity(ApiResponse.success(201, "Cliente creado exitosamente", response))
                 .build();
     }
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "MEMBERS_DELETE"})
     public Response delete(@PathParam("id") UUID id) {
         memberService.delete(id);
         return Response.noContent().build();
@@ -77,21 +77,21 @@ public class MemberResource {
     @GET
     @Path("/{id}/carnet-pdf")
     @Produces("application/pdf")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getCarnetPdf(@PathParam("id") UUID id) {
         byte[] pdfBytes = pdfReportService.generateMemberCarnetPdf(id);
         return Response.ok(pdfBytes)
-                .header("Content-Disposition", "inline; filename=\"carnet_socio_" + id + ".pdf\"")
+                .header("Content-Disposition", "inline; filename=\"carnet_cliente_" + id + ".pdf\"")
                 .header("Content-Length", pdfBytes.length)
                 .build();
     }
 
     @POST
     @Path("/{id}/solicitar-carnet")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "CLIENTE"})
     public Response solicitarCarnet(@PathParam("id") UUID id) {
         Member member = memberService.findById(id)
-                .orElseThrow(() -> new NotFoundException("Socio no encontrado con ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Cliente no encontrado con ID: " + id));
         byte[] pdfBytes = pdfReportService.generateMemberCarnetPdf(id);
         User user = member.getUsers();
         String fullName = user.getFirstName() + " " + user.getLastName();

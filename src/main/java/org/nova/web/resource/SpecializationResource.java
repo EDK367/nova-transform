@@ -24,7 +24,7 @@ public class SpecializationResource {
     private final SpecializationService specializationService;
 
     @GET
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getAll() {
         List<SpecializationResponse> specializations = specializationService.findAllResponses();
         return Response.ok(ApiResponse.success(200, "Especializaciones obtenidas exitosamente", specializations)).build();
@@ -32,14 +32,14 @@ public class SpecializationResource {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed({"ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "RECEPCIONISTA", "ENTRENADOR", "CLIENTE"})
     public Response getById(@PathParam("id") Long id) {
         SpecializationResponse specialization = specializationService.findResponseById(id);
         return Response.ok(ApiResponse.success(200, "Especializacion obtenida exitosamente", specialization)).build();
     }
 
     @POST
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "SPECIALIZATIONS_MANAGE"})
     public Response create(@Valid CreateSpecializationRequest request) {
         SpecializationResponse response = specializationService.createSpecialization(request);
         return Response.created(URI.create("/api/v1/specializations/" + response.id()))
@@ -49,7 +49,7 @@ public class SpecializationResource {
 
     @PUT
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "SPECIALIZATIONS_MANAGE"})
     public Response update(@PathParam("id") Long id, @Valid UpdateSpecializationRequest request) {
         SpecializationResponse response = specializationService.updateSpecialization(id, request);
         return Response.ok(ApiResponse.success(200, "Especializacion actualizada exitosamente", response)).build();
@@ -57,7 +57,7 @@ public class SpecializationResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed("ADMIN")
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "SPECIALIZATIONS_MANAGE"})
     public Response delete(@PathParam("id") Long id) {
         specializationService.deleteSpecialization(id);
         return Response.noContent().build();
