@@ -10,6 +10,10 @@ import java.util.Optional;
 public class RoleRepository implements PanacheRepositoryBase<Role, Long> {
 
     public Optional<Role> findByName(String name) {
-        return find("name", name).firstResultOptional();
+        return find("UPPER(name) = ?1", name != null ? name.trim().toUpperCase() : "").firstResultOptional();
+    }
+
+    public boolean existsByName(String name) {
+        return count("UPPER(name) = ?1", name != null ? name.trim().toUpperCase() : "") > 0;
     }
 }

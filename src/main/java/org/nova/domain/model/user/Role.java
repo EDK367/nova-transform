@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -23,6 +25,17 @@ public class Role extends PanacheEntityBase {
 
     @Column(name = "description")
     private String description;
+
+    @Column(name = "is_system", nullable = false)
+    private boolean systemRole = false;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "id_role"),
+            inverseJoinColumns = @JoinColumn(name = "id_permission")
+    )
+    private Set<Permission> permissions = new HashSet<>();
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
