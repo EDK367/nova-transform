@@ -24,7 +24,25 @@ class AuthIntegrationTest {
                 .statusCode(200)
                 .body("accessToken", notNullValue())
                 .body("user.username", equalTo("admin"))
+                .body("user.roleName", equalTo("ADMIN"))
                 .body("user.email", equalTo("admin@solairy.com"));
+    }
+
+    @Test
+    void testLoginSuperAdminOwner() {
+        LoginRequest request = new LoginRequest("superadmin", "admin123");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/auth/login")
+                .then()
+                .statusCode(200)
+                .body("accessToken", notNullValue())
+                .body("user.username", equalTo("superadmin"))
+                .body("user.roleName", equalTo("SUPER_ADMIN"))
+                .body("user.permissions", hasItems("ROLES_MANAGE", "PERMISSIONS_MANAGE"));
     }
 
     @Test

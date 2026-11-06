@@ -361,8 +361,44 @@ class UserAndMemberIntegrationTest {
                 .get("/api/v1/roles")
                 .then()
                 .statusCode(200)
-                .body("data", hasSize(4))
-                .body("data.name", hasItems("ADMIN", "ENTRENADOR", "RECEPCIONISTA", "CLIENTE"));
+                .body("data.name", hasItems("SUPER_ADMIN", "ADMIN", "ENTRENADOR", "RECEPCIONISTA", "CLIENTE"));
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"ADMIN"})
+    void testRegularAdminCannotCreateRoleOrModifyPermissions() {
+        given()
+                .contentType(ContentType.JSON)
+                .body("{\"name\":\"AUDITOR\",\"description\":\"Auditor interno\"}")
+                .when()
+                .post("/api/v1/roles")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "superadmin", roles = {"SUPER_ADMIN", "ADMIN"})
+    void testSuperAdminCannotAssignSuperAdminRoleToNewUser() {
+        CreateUserRequest request = new CreateUserRequest(
+                "Another",
+                "Owner",
+                "owner2.attempt@test.com",
+                "123456789",
+                "owner2attempt",
+                "SUPER_ADMIN",
+                null,
+                null,
+                null
+        );
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/v1/users")
+                .then()
+                .statusCode(400)
+                .body("message", containsString("exclusivo del propietario del sistema"));
     }
 
     /*
