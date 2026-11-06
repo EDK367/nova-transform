@@ -13,6 +13,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.nova.service.auth.AuthService;
 import org.nova.web.dto.request.auth.LoginRequest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Path("/api/v1/auth")
@@ -33,15 +34,17 @@ public class AuthResource {
 
     @GET
     @Path("/me")
-    @RolesAllowed({"ADMIN", "USER"})
+    @RolesAllowed({"SUPER_ADMIN", "ADMIN", "ENTRENADOR", "RECEPCIONISTA", "CLIENTE", "USER"})
     public Response me(@Context SecurityContext ctx) {
-        return Response.ok(Map.of(
-                "username", ctx.getUserPrincipal().getName(),
-                "subject", jwt.getSubject(),
-                "groups", jwt.getGroups(),
-                "name", jwt.getClaim("name"),
-                "email", jwt.getClaim("email")
-        )).build();
+        Map<String, Object> body = new HashMap<>();
+        body.put("username", ctx.getUserPrincipal() != null ? ctx.getUserPrincipal().getName() : "");
+        body.put("subject", jwt.getSubject());
+        body.put("groups", jwt.getGroups());
+        body.put("role", jwt.getClaim("role"));
+        body.put("permissions", jwt.getClaim("permissions"));
+        body.put("name", jwt.getClaim("name"));
+        body.put("email", jwt.getClaim("email"));
+        return Response.ok(body).build();
     }
 
 }

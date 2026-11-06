@@ -3,6 +3,7 @@ package org.nova.web.dto.response.user;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -15,7 +16,9 @@ public class UserResponse {
     private String email;
     private String phone;
     private String username;
+    private Long roleId;
     private String roleName;
+    private List<String> permissions;
     private Long branchId;
     private boolean active;
 }

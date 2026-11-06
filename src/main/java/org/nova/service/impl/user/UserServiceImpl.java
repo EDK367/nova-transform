@@ -4,6 +4,7 @@ import io.quarkus.elytron.security.common.BcryptUtil;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import io.quarkus.security.identity.SecurityIdentity;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,11 @@ public class UserServiceImpl implements UserService {
     private final PasswordGenerator passwordGenerator;
     private final CredentialNotificationService credentialNotificationService;
     private final UserMapper userMapper;
+    private final SecurityIdentity securityIdentity;
+
+    private boolean isCallerSuperAdmin() {
+        return securityIdentity != null && securityIdentity.hasRole("SUPER_ADMIN");
+    }
 
     @Override
     public List<User> findAll() {
@@ -106,14 +112,14 @@ public class UserServiceImpl implements UserService {
         }
 
         String roleName = role.getName().trim().toUpperCase();
-        if ("ADMIN".equals(roleName)) {
-            throw new BadRequestException("No está permitido crear usuarios con el rol ADMIN desde este módulo");
+        if ("SUPER_ADMIN".equals(roleName)) {
+            throw new BadRequestException("El rol SUPER_ADMIN es exclusivo del propietario del sistema y no puede ser asignado a nuevos usuarios");
         }
         if ("CLIENTE".equals(roleName)) {
             throw new BadRequestException("No está permitido crear usuarios con el rol CLIENTE desde este módulo. Los clientes deben crearse a través del flujo de socios");
         }
-        if (!"ENTRENADOR".equals(roleName) && !"RECEPCIONISTA".equals(roleName)) {
-            throw new BadRequestException("Rol no permitido para usuarios internos: " + roleName);
+        if ("ADMIN".equals(roleName) && !isCallerSuperAdmin()) {
+            throw new BadRequestException("No está permitido crear usuarios con el rol ADMIN desde este módulo");
         }
 
         if (repository.existsByEmail(request.email())) {
@@ -208,6 +214,12 @@ public class UserServiceImpl implements UserService {
         User existing = repository.findByIdOptional(id)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado con ID: " + id));
 
+        String currentRoleName = existing.getRole() != null ? existing.getRole().getName().trim().toUpperCase() : "";
+
+        if ("SUPER_ADMIN".equals(currentRoleName) && !isCallerSuperAdmin()) {
+            throw new BadRequestException("No está permitido modificar la cuenta del propietario del sistema (SUPER_ADMIN)");
+        }
+
         if (!existing.getEmail().equalsIgnoreCase(request.email()) && repository.existsByEmail(request.email())) {
             throw new ConflictException("El correo electrónico ya se encuentra registrado: " + request.email());
         }
@@ -230,6 +242,52 @@ public class UserServiceImpl implements UserService {
             existing.setBranch(null);
         }
 
+        if (request.roleId() != null && (existing.getRole() == null || !request.roleId().equals(existing.getRole().getId()))) {
+            if ("SUPER_ADMIN".equals(currentRoleName)) {
+                throw new BadRequestException("La cuenta propietaria del sistema (SUPER_ADMIN) no puede cambiar de rol");
+            }
+
+            Role newRole = roleRepository.findByIdOptional(request.roleId())
+                    .orElseThrow(() -> new NotFoundException("Rol no encontrado con ID: " + request.roleId()));
+            String newRoleName = newRole.getName().trim().toUpperCase();
+
+            if ("SUPER_ADMIN".equals(newRoleName)) {
+                throw new BadRequestException("El rol SUPER_ADMIN es exclusivo del propietario del sistema y no puede ser asignado");
+            }
+            if ("CLIENTE".equals(newRoleName)) {
+                throw new BadRequestException("No está permitido cambiar un usuario interno al rol CLIENTE");
+            }
+            if (("ADMIN".equals(newRoleName) || "ADMIN".equals(currentRoleName)) && !isCallerSuperAdmin()) {
+                throw new BadRequestException("Solo el Superusuario (SUPER_ADMIN) puede asignar o modificar usuarios con rol ADMIN");
+            }
+
+            existing.setRole(newRole);
+
+            if ("ENTRENADOR".equals(newRoleName) && trainerRepository.findByIdOptional(existing.getId()).isEmpty()) {
+                Trainer trainer = new Trainer();
+                trainer.setId(existing.getId());
+                trainer.setUsers(existing);
+                trainer.setHireDate(LocalDate.now());
+                trainerRepository.persist(trainer);
+            } else if ("RECEPCIONISTA".equals(newRoleName) && receptionistRepository.findByIdOptional(existing.getId()).isEmpty()) {
+                Receptionist receptionist = new Receptionist();
+                receptionist.setId(existing.getId());
+                receptionist.setUsers(existing);
+                receptionist.setHireDate(LocalDate.now());
+                receptionistRepository.persist(receptionist);
+            }
+        }
+
+        if (request.active() != null) {
+            if ("SUPER_ADMIN".equals(currentRoleName) && !request.active()) {
+                throw new BadRequestException("La cuenta propietaria del sistema (SUPER_ADMIN) no puede ser desactivada");
+            }
+            if ("ADMIN".equals(currentRoleName) && !isCallerSuperAdmin()) {
+                throw new BadRequestException("Solo el Superusuario (SUPER_ADMIN) puede cambiar el estado de una cuenta ADMIN");
+            }
+            existing.setActive(request.active());
+        }
+
         return existing;
     }
 
@@ -238,6 +296,13 @@ public class UserServiceImpl implements UserService {
     public void delete(UUID id) {
         User existing = repository.findByIdOptional(id)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado con ID: " + id));
+        String currentRoleName = existing.getRole() != null ? existing.getRole().getName().trim().toUpperCase() : "";
+        if ("SUPER_ADMIN".equals(currentRoleName)) {
+            throw new BadRequestException("La cuenta propietaria del sistema (SUPER_ADMIN) no puede ser eliminada ni desactivada");
+        }
+        if ("ADMIN".equals(currentRoleName) && !isCallerSuperAdmin()) {
+            throw new BadRequestException("Solo el Superusuario (SUPER_ADMIN) puede dar de baja una cuenta ADMIN");
+        }
         existing.setActive(false);
     }
 }

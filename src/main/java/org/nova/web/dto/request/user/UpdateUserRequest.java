@@ -25,6 +25,10 @@ public record UpdateUserRequest(
         @Size(min = 3, max = 50, message = "El nombre de usuario debe tener entre 3 y 50 caracteres")
         String username,
 
-        Long branchId
+        Long branchId,
+
+        Long roleId,
+
+        Boolean active
 ) {
 }

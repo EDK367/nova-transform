@@ -22,7 +22,7 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RequiredArgsConstructor
-@RolesAllowed("ADMIN")
+@RolesAllowed({"SUPER_ADMIN", "ADMIN"})
 public class UserResource {
 
     private final UserService userService;

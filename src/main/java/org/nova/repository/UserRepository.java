@@ -34,4 +34,8 @@ public class UserRepository implements PanacheRepositoryBase<User, UUID> {
         return count("email", email) > 0;
     }
 
+    public long countByRoleId(Long roleId) {
+        return count("role.id", roleId);
+    }
+
 }
