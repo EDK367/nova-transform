@@ -1,5 +1,20 @@
+# Ignorar todo por defecto y solo incluir lo necesario
 *
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+
+# Maven wrapper y config
+!mvnw
+!mvnw.cmd
+!.mvn/
+!pom.xml
+
+# Código fuente
+!src/
+
+# Excluir de forma explícita artefactos de build locales
+target/
+.env
+.git/
+.idea/
+*.iml
+*.ipr
+*.iws
